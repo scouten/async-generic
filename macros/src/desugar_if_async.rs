@@ -42,29 +42,25 @@ impl VisitMut for DesugarIfAsync {
     fn visit_expr_mut(&mut self, node: &mut Expr) {
         visit_mut::visit_expr_mut(self, node);
 
-        match &node {
-            Expr::If(expr_if) => {
-                if let Expr::Path(ref var) = expr_if.cond.as_ref() {
-                    if let Some(first_segment) = var.path.segments.first() {
-                        if var.path.segments.len() == 1 {
-                            let name = first_segment.ident.to_string();
-                            let then_branch = expr_if.then_branch.clone();
-                            let else_branch = expr_if.else_branch.as_ref().map(|eb| *eb.1.clone());
-                            match name.as_str() {
-                                "_async" => {
-                                    self.rewrite_if_async(node, then_branch, else_branch, true);
-                                }
-                                "_sync" => {
-                                    self.rewrite_if_async(node, then_branch, else_branch, false);
-                                }
-                                _ => {}
+        if let Expr::If(expr_if) = &node {
+            if let Expr::Path(ref var) = expr_if.cond.as_ref() {
+                if let Some(first_segment) = var.path.segments.first() {
+                    if var.path.segments.len() == 1 {
+                        let name = first_segment.ident.to_string();
+                        let then_branch = expr_if.then_branch.clone();
+                        let else_branch = expr_if.else_branch.as_ref().map(|eb| *eb.1.clone());
+                        match name.as_str() {
+                            "_async" => {
+                                self.rewrite_if_async(node, then_branch, else_branch, true);
                             }
+                            "_sync" => {
+                                self.rewrite_if_async(node, then_branch, else_branch, false);
+                            }
+                            _ => {}
                         }
                     }
                 }
             }
-
-            _ => {}
         }
     }
 }

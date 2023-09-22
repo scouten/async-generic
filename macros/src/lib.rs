@@ -51,7 +51,7 @@ fn convert_sync_async(
         tokens
     };
 
-    let mut dia = DesugarIfAsync { is_async: is_async };
+    let mut dia = DesugarIfAsync { is_async };
     dia.desugar_if_async(tokens)
 }
 
@@ -63,7 +63,7 @@ pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
         let mut atokens = args.into_iter();
         loop {
             if let Some(TokenTree::Ident(i)) = atokens.next() {
-                if i.to_string() != "async_signature".to_string() {
+                if i.to_string() != *"async_signature" {
                     break;
                 }
             } else {
@@ -71,10 +71,8 @@ pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
             }
 
             if let Some(TokenTree::Group(g)) = atokens.next() {
-                if atokens.next().is_none() {
-                    if g.delimiter() == proc_macro::Delimiter::Parenthesis {
-                        async_signature = Some(g.stream());
-                    }
+                if atokens.next().is_none() && g.delimiter() == proc_macro::Delimiter::Parenthesis {
+                    async_signature = Some(g.stream());
                 }
             }
         }
