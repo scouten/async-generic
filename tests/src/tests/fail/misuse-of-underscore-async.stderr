@@ -1,0 +1,14 @@
+error[E0425]: cannot find value `_async` in this scope
+ --> src/tests/fail/misuse-of-underscore-async.rs:5:8
+  |
+5 |     if _async && true {
+  |        ^^^^^^ not found in this scope
+
+error[E0728]: `await` is only allowed inside `async` functions and blocks
+ --> src/tests/fail/misuse-of-underscore-async.rs:7:26
+  |
+4 | fn do_stuff() -> String {
+  |    -------- this is not `async`
+...
+7 |         my_async_stuff().await
+  |                          ^^^^^ only allowed inside `async` functions and blocks

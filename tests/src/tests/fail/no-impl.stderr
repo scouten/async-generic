@@ -1,0 +1,7 @@
+error: async_generic can only be used with functions
+  --> src/tests/fail/no-impl.rs:10:1
+   |
+10 | #[async_generic]
+   | ^^^^^^^^^^^^^^^^
+   |
+   = note: this error originates in the attribute macro `async_generic` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,0 +1,20 @@
+[package]
+name = "tests"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.70.0"
+license = "MIT OR Apache-2.0"
+
+[lib]
+crate-type = ["lib"]
+
+[package.metadata.cargo-udeps.ignore]
+normal = [
+    "async-generic",
+    "async-std",
+]
+
+[dependencies]
+async-generic = { path = "../macros" }
+async-std = { version = "1", features = ["attributes"] }
+trybuild = { version = "1", features = ["diff"] }
