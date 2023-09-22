@@ -1,3 +1,7 @@
+#![deny(warnings)]
+#![doc = include_str!("../../README.md")]
+#![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg, doc_cfg_hide))]
+
 use proc_macro::{TokenStream, TokenTree};
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree as TokenTree2};
 use quote::quote;

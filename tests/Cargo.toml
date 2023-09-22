@@ -16,5 +16,5 @@ normal = [
 
 [dependencies]
 async-generic = { path = "../macros" }
-async-std = { version = "1", features = ["attributes"] }
-trybuild = { version = "1", features = ["diff"] }
+async-std = { version = "1.0", features = ["attributes"] }
+trybuild = { version = "1.0", features = ["diff"] }
