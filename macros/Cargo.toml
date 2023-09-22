@@ -16,7 +16,7 @@ rust-version = "1.71.0"
 proc-macro = true
 
 [package.metadata.cargo-udeps.ignore]
-development = ["async-trait"]
+development = ["async-std", "async-trait"]
 
 [dependencies]
 proc-macro2 = "1.0"
