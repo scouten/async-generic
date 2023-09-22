@@ -9,6 +9,11 @@ Do not manually edit this file. It will be automatically updated when a new rele
 ## 0.1.0
 _22 September 2023_
 
+* Prepare 0.1.0 release
+* (MINOR) Initial public release
+## 0.1.0
+_22 September 2023_
+
 * (MINOR) Initial public release
 ## 0.0.2
 _22 September 2023_
