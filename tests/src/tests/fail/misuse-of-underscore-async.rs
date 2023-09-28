@@ -4,9 +4,9 @@ use async_generic::async_generic;
 fn do_stuff() -> String {
     if _async && true {
         // ERROR: _async must stand alone in expression
-        my_async_stuff().await
+        unreachable!();
     } else {
-            "not async".to_owned()
+        "not async".to_owned()
     }
 }
 
