@@ -12,6 +12,8 @@ So ... what do we do _now_ if we need async-generic code? We build our own, usin
 
 I'll happily mark this crate as deprecated when keyword generics land officially in the language. Until then, hopefully it solves some problems for you, too!
 
+IMPORTANT: This crate is quite simple, so I expect there will be few releases beyond the 1.0.0 release. If you encounter issues, pelase do file them here; I use this crate routinely in other projects and will be watching, even if I don't update it regularly.
+
 ## User's guide
 
 The `async_generic` crate introduces a single proc macro also named `async_generic` which can be applied as an attribute to any function (either inside a struct or not).
