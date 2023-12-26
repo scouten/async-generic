@@ -6,6 +6,10 @@ This project adheres to [Semantic Versioning](https://semver.org), except that â
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## 1.0.0
+_26 December 2023_
+
+* (MAJOR) Prepare for 1.0 release ([#2](https://github.com/scouten/sync-generic/pull/2))
 ## 0.1.2
 _28 September 2023_
 
