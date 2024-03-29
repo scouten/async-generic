@@ -112,7 +112,6 @@ jobs:
         uses: EmbarkStudios/cargo-deny-action@v1
         with:
           command: check ${{ matrix.checks }}
-          arguments: --manifest-path macros/Cargo.toml
 
   unused_deps:
     name: Check for unused dependencies
