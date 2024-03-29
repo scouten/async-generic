@@ -1,6 +1,6 @@
 [package]
 name = "async-generic"
-version = "1.0.0"
+version = "1.1.0"
 description = "Write code that can be both async and synchronous without duplicating it."
 authors = ["Eric Scouten <git@scouten.me>"]
 license = "MIT OR Apache-2.0"
