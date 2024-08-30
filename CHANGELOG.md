@@ -8,6 +8,12 @@ Since version 1.1.1, the format of this changelog is based on [Keep a Changelog]
 
 Do not manually edit this file. It will be automatically updated when a new release is published.
 
+## [1.1.1](https://github.com/scouten/async-generic/compare/async-generic-v1.1.0...async-generic-v1.1.1)
+_30 August 2024_
+
+### Fixed
+* Simplify internal syntax
+
 ## 1.1.0
 _29 March 2024_
 
