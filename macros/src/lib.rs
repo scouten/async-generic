@@ -54,8 +54,7 @@ fn convert_sync_async(
         tokens
     };
 
-    let mut dia = DesugarIfAsync { is_async };
-    dia.desugar_if_async(tokens)
+    DesugarIfAsync { is_async }.desugar_if_async(tokens)
 }
 
 #[proc_macro_attribute]
