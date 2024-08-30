@@ -11,8 +11,8 @@ Do not manually edit this file. It will be automatically updated when a new rele
 ## [1.1.1](https://github.com/scouten/async-generic/compare/async-generic-v1.1.0...async-generic-v1.1.1)
 _30 August 2024_
 
-### Fixed
-* Simplify internal syntax
+### Other
+* Start using [release-plz](https://release-plz.ieni.dev) to manage releases
 
 ## 1.1.0
 _29 March 2024_
