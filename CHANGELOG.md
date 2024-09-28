@@ -6,6 +6,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 Since version 1.1.1, the format of this changelog is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.1.2](https://github.com/scouten/async-generic/compare/async-generic-v1.1.1...async-generic-v1.1.2)
+_28 September 2024_
+### Fixed
+
+* Include license files in published crates ([#13](https://github.com/scouten/async-generic/pull/13))
+
 ## [1.1.1](https://github.com/scouten/async-generic/compare/async-generic-v1.1.0...async-generic-v1.1.1)
 _30 August 2024_
 
