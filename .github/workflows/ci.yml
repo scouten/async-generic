@@ -1,7 +1,12 @@
 name: CI
 
 on:  
+  workflow_dispatch:
   pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   push:
     branches: main
   schedule:
@@ -42,15 +47,14 @@ jobs:
       
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
-
-      - name: Install clippy
-        run: rustup component add clippy
+        with:
+          components: clippy
 
       - name: Cache Rust dependencies
         uses: Swatinem/rust-cache@v2
 
-      - name: Cargo clippy
-        run: cargo clippy --all-features --all-targets -- -D warnings
+      - name: Run Clippy
+        run: cargo clippy --all-features --all-targets -- -Dwarnings
 
   cargo_fmt:
     name: Enforce Rust code format
