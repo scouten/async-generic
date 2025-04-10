@@ -1,0 +1,11 @@
+error[E0425]: cannot find function `do_stuff` in this scope
+  --> src/tests/fail/async-only.rs:33:28
+   |
+33 |     println!("sync => {}", do_stuff(&st));
+   |                            ^^^^^^^^ not found in this scope
+   |
+help: use the `.` operator to call the method `do_stuff` on `&SyncThing`
+   |
+33 -     println!("sync => {}", do_stuff(&st));
+33 +     println!("sync => {}", (&st).do_stuff());
+   |
