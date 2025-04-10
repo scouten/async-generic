@@ -1,7 +1,5 @@
-error: async_generic can only take a async_signature argument
- --> src/tests/fail/no-macro-args.rs:3:1
+error: invalid argument for async_generic. valid arguments: async_signature, sync_cfg, async_cfg
+ --> src/tests/fail/no-macro-args.rs:3:17
   |
 3 | #[async_generic(Send)]
-  | ^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = note: this error originates in the attribute macro `async_generic` (in Nightly builds, run with -Z macro-backtrace for more info)
+  |                 ^^^^

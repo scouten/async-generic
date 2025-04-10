@@ -5,6 +5,8 @@ fn tests() {
     t.pass("src/tests/pass/generic-fn.rs");
     t.pass("src/tests/pass/generic-fn-with-visibility.rs");
     t.pass("src/tests/pass/struct-method-generic.rs");
+    t.pass("src/tests/pass/async-only.rs");
+    t.pass("src/tests/pass/sync-only.rs");
 
     t.compile_fail("src/tests/fail/misuse-of-underscore-async.rs");
     t.compile_fail("src/tests/fail/no-async-fn.rs");
@@ -12,4 +14,6 @@ fn tests() {
     t.compile_fail("src/tests/fail/no-macro-args.rs");
     t.compile_fail("src/tests/fail/no-struct.rs");
     t.compile_fail("src/tests/fail/no-trait.rs");
+    t.compile_fail("src/tests/fail/sync-only.rs");
+    t.compile_fail("src/tests/fail/async-only.rs");
 }

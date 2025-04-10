@@ -1,0 +1,5 @@
+error[E0425]: cannot find function `do_stuff_async` in this scope
+  --> src/tests/fail/sync-only.rs:34:29
+   |
+34 |     println!("async => {}", do_stuff_async(&at).await);
+   |                             ^^^^^^^^^^^^^^ not found in this scope
