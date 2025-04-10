@@ -1,7 +1,7 @@
 #![deny(warnings)]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg, doc_cfg_hide))]
 
-use proc_macro::{TokenStream, TokenTree};
+use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree as TokenTree2};
 use quote::quote;
 use syn::{
@@ -9,8 +9,10 @@ use syn::{
     parse_macro_input, Attribute, Error, ItemFn, Token,
 };
 
+use crate::arguments::AsyncGenericAttributeArgs;
 use crate::desugar_if_async::DesugarIfAsync;
 
+mod arguments;
 mod desugar_if_async;
 
 fn convert_sync_async(
@@ -59,42 +61,14 @@ fn convert_sync_async(
 
 #[proc_macro_attribute]
 pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut async_signature: Option<TokenStream> = None;
-
-    if !args.to_string().is_empty() {
-        let mut atokens = args.into_iter();
-        loop {
-            if let Some(TokenTree::Ident(i)) = atokens.next() {
-                if i.to_string() != *"async_signature" {
-                    break;
-                }
-            } else {
-                break;
-            }
-
-            if let Some(TokenTree::Group(g)) = atokens.next() {
-                if atokens.next().is_none() && g.delimiter() == proc_macro::Delimiter::Parenthesis {
-                    async_signature = Some(g.stream());
-                }
-            }
-        }
-
-        if async_signature.is_none() {
-            return syn::Error::new(
-                Span::call_site(),
-                "async_generic can only take a async_signature argument",
-            )
-            .to_compile_error()
-            .into();
-        }
-    };
+    let args = parse_macro_input!(args as AsyncGenericAttributeArgs);
 
     let input_clone = input.clone();
     let mut item = parse_macro_input!(input_clone as Item);
     let sync_tokens = convert_sync_async(&mut item, false, None);
 
     let mut item = parse_macro_input!(input as Item);
-    let async_tokens = convert_sync_async(&mut item, true, async_signature);
+    let async_tokens = convert_sync_async(&mut item, true, args.async_signature);
 
     let mut tokens = sync_tokens;
     tokens.extend(async_tokens);
