@@ -21,7 +21,6 @@ The `async_generic` crate introduces a single proc macro also named `async_gener
 The macro outputs _two_ versions of the function, one synchronous and one that's async. The functions are identical to each other, except as follows:
 
 * When writing the async flavor of the function, the macro inserts the `async` modifier for you and renames the function (to avoid a name collision) by adding an `_async` suffix to the existing function name.
-* The attribute macro _may_ contain an `async_signature` argument. If that exists, the async function's argument parameters are replaced. (See example below.)
 * You can write `if _sync` or `if _async` blocks inside this block. The contents of these blocks will only appear in the corresponding sync or async flavors of the functions. You _may_ specify an `else` clause, which will only appear in the opposite flavor of the function. You may not combine `_sync` or `_async` with any other expression. (These aren't _really_ variables in the function scope, and they will cause "undefined identifier" errors if you try that.)
 
 A simple example:
@@ -49,6 +48,10 @@ async fn main() {
     println!("async => {}", do_stuff_async().await);
 }
 ```
+
+### Signature Modification
+
+The attribute macro may contain an `async_signature` argument. If that exists, the async function's argument parameters are replaced.
 
 An example with different function arguments in the sync and async flavors:
 
@@ -88,6 +91,31 @@ async fn main() {
 
     println!("sync => {}", do_stuff(&st));
     println!("async => {}", do_stuff_async(&at).await);
+}
+```
+
+
+### Conditional compilation
+
+The attribute macro may contain a `sync_cfg` or `async_cfg` argument. If either of these are set, the relevant expansion function is annotated with a `#[cfg(<condition>)]` attribute. For example,
+
+```rust
+#[async_generic(sync_cfg(feature = "sync"), async_cfg(feature = "async"))]
+fn do_stuff(thing: &Thing) -> String {
+    todo!()
+}
+```
+
+This will be transformed into conditionally compiled functions as follows:
+
+```rust
+#[cfg(feature = "sync")]
+fn do_stuff(thing: &Thing) -> String {
+    todo!()
+}
+#[cfg(feature = "async")]
+async fn do_stuff_async(thing: &Thing) -> String {
+    todo!()
 }
 ```
 

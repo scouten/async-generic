@@ -67,6 +67,92 @@ fn convert_sync_async(
     DesugarIfAsync { is_async }.desugar_if_async(tokens)
 }
 
+/// Produce both a sync and an async version of this function.
+///
+/// The async version of this function has `_async` appended to its name.
+///
+/// ## Arguments
+///
+/// This macro optionally accepts certain arguments, as follows.
+///
+/// ### `async_signature(<params>)`
+///
+/// Calling this function with an `async_signature` argument replaces its parameter list with the specified parameters.
+///
+/// For example:
+///
+/// ```rust
+/// # use async_generic::async_generic;
+/// # struct SyncThing;
+/// # struct AsyncThing;
+/// #[async_generic(async_signature(thing: &AsyncThing))]
+/// fn do_stuff(thing: &SyncThing) -> String {
+///     todo!()
+/// }
+/// ```
+///
+/// Expands to these functions:
+///
+/// ```rust
+/// # struct SyncThing;
+/// # struct AsyncThing;
+/// fn do_stuff(thing: &SyncThing) -> String {
+///     todo!()
+/// }
+/// async fn do_stuff_async(thing: &AsyncThing) -> String {
+///     todo!()
+/// }
+/// ```
+///
+/// ### `sync_cfg(<condition>)`
+///
+/// Calling this function with a `sync_cfg` argument adds a conditional compilation marker to the sync version of the emitted function.
+///
+/// For example:
+///
+/// ```rust,ignore
+/// #[async_generic(sync_cfg(any(test, feature = "sync")))]
+/// fn do_stuff(thing: &Thing) {
+///     todo!()
+/// }
+/// ```
+///
+/// Expands to these functions
+///
+/// ```rust,ignore
+/// #[cfg(any(test, feature = "sync"))]
+/// fn do_stuff(thing: &Thing) -> String {
+///     todo!()
+/// }
+/// async fn do_stuff_async(thing: &Thing) -> String {
+///     todo!()
+/// }
+/// ```
+///
+/// ### `async_cfg(<condition>)`
+///
+/// Calling this function with an `async_cfg` argument adds a conditional compilation marker to the asycn version of the emitted function.
+///
+/// For examples:
+///
+/// ```rust,ignore
+/// #[async_generic(async_cfg(feature = "async"))]
+/// fn do_stuff(thing: &Thing) {
+///     todo!()
+/// }
+/// ```
+///
+/// Expands to these functions
+///
+/// ```rust,ignore
+/// fn do_stuff(thing: &Thing) -> String {
+///     todo!()
+/// }
+/// #[cfg(any(test, feature = "async"))]
+/// async fn do_stuff_async(thing: &Thing) -> String {
+///     todo!()
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
     let args = parse_macro_input!(args as AsyncGenericAttributeArgs);
