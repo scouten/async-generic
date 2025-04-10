@@ -18,7 +18,7 @@ mod desugar_if_async;
 fn convert_sync_async(
     input: &mut Item,
     is_async: bool,
-    alt_sig: Option<TokenStream>,
+    args: &AsyncGenericAttributeArgs,
 ) -> TokenStream2 {
     let item = &mut input.0;
 
@@ -27,34 +27,42 @@ fn convert_sync_async(
         item.sig.ident = Ident::new(&format!("{}_async", item.sig.ident), Span::call_site());
     }
 
-    let tokens = quote!(#item);
-
-    let tokens = if let Some(alt_sig) = alt_sig {
-        let mut found_fn = false;
-        let mut found_args = false;
-
-        let old_tokens = tokens.into_iter().map(|token| match &token {
-            TokenTree2::Ident(i) => {
-                found_fn = found_fn || &i.to_string() == "fn";
-                token
-            }
-            TokenTree2::Group(g) => {
-                if found_fn && !found_args && g.delimiter() == proc_macro2::Delimiter::Parenthesis {
-                    found_args = true;
-                    return TokenTree2::Group(proc_macro2::Group::new(
-                        proc_macro2::Delimiter::Parenthesis,
-                        alt_sig.clone().into(),
-                    ));
-                }
-                token
-            }
-            _ => token,
-        });
-
-        TokenStream2::from_iter(old_tokens)
-    } else {
-        tokens
+    let cfg_attr = match (is_async, args.sync_cfg.as_ref(), args.async_cfg.as_ref()) {
+        (false, Some(sync_cfg), _) => quote! { #[cfg(#sync_cfg)] },
+        (true, _, Some(async_cfg)) => quote! { #[cfg(#async_cfg)]  },
+        _ => Default::default(),
     };
+    let mut tokens = quote!(#cfg_attr #item);
+
+    if is_async {
+        if let Some(alt_sig) = args.async_signature.as_ref() {
+            let mut found_fn = false;
+            let mut found_args = false;
+
+            let old_tokens = tokens.into_iter().map(|token| match &token {
+                TokenTree2::Ident(i) => {
+                    found_fn = found_fn || &i.to_string() == "fn";
+                    token
+                }
+                TokenTree2::Group(g) => {
+                    if found_fn
+                        && !found_args
+                        && g.delimiter() == proc_macro2::Delimiter::Parenthesis
+                    {
+                        found_args = true;
+                        return TokenTree2::Group(proc_macro2::Group::new(
+                            proc_macro2::Delimiter::Parenthesis,
+                            alt_sig.to_owned().into(),
+                        ));
+                    }
+                    token
+                }
+                _ => token,
+            });
+
+            tokens = TokenStream2::from_iter(old_tokens);
+        }
+    }
 
     DesugarIfAsync { is_async }.desugar_if_async(tokens)
 }
@@ -65,10 +73,10 @@ pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
 
     let input_clone = input.clone();
     let mut item = parse_macro_input!(input_clone as Item);
-    let sync_tokens = convert_sync_async(&mut item, false, None);
+    let sync_tokens = convert_sync_async(&mut item, false, &args);
 
     let mut item = parse_macro_input!(input as Item);
-    let async_tokens = convert_sync_async(&mut item, true, args.async_signature);
+    let async_tokens = convert_sync_async(&mut item, true, &args);
 
     let mut tokens = sync_tokens;
     tokens.extend(async_tokens);

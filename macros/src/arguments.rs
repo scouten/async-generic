@@ -1,4 +1,3 @@
-use proc_macro::TokenStream;
 use proc_macro2::{Ident, TokenStream as TokenStream2};
 use syn::{
     parenthesized,
@@ -15,7 +14,7 @@ const VALID_ARGUMENTS: &[&str] = &[ASYNC_SIG, SYNC_CFG, ASYNC_CFG];
 struct NamedParenGroup {
     name: Ident,
     _paren: token::Paren,
-    contents: TokenStream,
+    contents: TokenStream2,
 }
 
 impl Parse for NamedParenGroup {
@@ -46,21 +45,21 @@ impl Parse for NamedParenGroup {
         Ok(Self {
             name,
             _paren,
-            contents: contents.into(),
+            contents,
         })
     }
 }
 
 #[derive(Default)]
 pub struct AsyncGenericAttributeArgs {
-    pub async_signature: Option<TokenStream>,
-    pub sync_cfg: Option<TokenStream>,
-    pub async_cfg: Option<TokenStream>,
+    pub async_signature: Option<TokenStream2>,
+    pub sync_cfg: Option<TokenStream2>,
+    pub async_cfg: Option<TokenStream2>,
 }
 
 impl AsyncGenericAttributeArgs {
     /// Associate the argument with one of the legal attributes by name
-    fn recognize(&mut self, ident: Ident) -> Result<&mut TokenStream> {
+    fn recognize(&mut self, ident: Ident) -> Result<&mut TokenStream2> {
         let field = match ident.to_string().as_str() {
             ASYNC_SIG => &mut self.async_signature,
             SYNC_CFG => &mut self.sync_cfg,
