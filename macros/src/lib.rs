@@ -1,6 +1,7 @@
 #![deny(warnings)]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg, doc_cfg_hide))]
 
+use call_generic::parse_quote_call_generic;
 use proc_macro::{TokenStream, TokenTree};
 use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree as TokenTree2};
 use quote::quote;
@@ -11,6 +12,7 @@ use syn::{
 
 use crate::desugar_if_async::DesugarIfAsync;
 
+mod call_generic;
 mod desugar_if_async;
 
 fn convert_sync_async(
@@ -54,6 +56,7 @@ fn convert_sync_async(
         tokens
     };
 
+    let tokens = parse_quote_call_generic(tokens);
     DesugarIfAsync { is_async }.desugar_if_async(tokens)
 }
 

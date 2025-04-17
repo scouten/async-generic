@@ -1,0 +1,5 @@
+error: call_generic must be used on a method call or a function call.
+ --> src/tests/fail/generic-call-invalid-usage.rs:5:5
+  |
+5 |     #[call_generic]
+  |     ^

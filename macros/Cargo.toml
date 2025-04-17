@@ -21,7 +21,7 @@ development = ["async-std", "async-trait"]
 [dependencies]
 proc-macro2 = "1.0"
 quote = "1.0"
-syn = { version = "2.0", features = ["visit-mut", "full"] }
+syn = { version = "2.0", features = ["visit", "visit-mut", "full"] }
 
 [dev-dependencies]
 async-std = { version = "1.0", features = ["attributes"] }
