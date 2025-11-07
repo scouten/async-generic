@@ -1,10 +1,11 @@
 #![deny(warnings)]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg, doc_cfg_hide))]
 
-use proc_macro::{TokenStream, TokenTree};
-use proc_macro2::{Ident, Span, TokenStream as TokenStream2, TokenTree as TokenTree2};
+use proc_macro::TokenStream;
+use proc_macro2::{Ident, Span, TokenStream as TokenStream2};
 use quote::quote;
 use syn::{
+    parenthesized,
     parse::{Parse, ParseStream, Result},
     parse_macro_input, Attribute, Error, ItemFn, Token,
 };
@@ -16,7 +17,7 @@ mod desugar_if_async;
 fn convert_sync_async(
     input: &mut Item,
     is_async: bool,
-    alt_sig: Option<TokenStream>,
+    async_signature: Option<Args>,
 ) -> TokenStream2 {
     let item = &mut input.0;
 
@@ -25,68 +26,29 @@ fn convert_sync_async(
         item.sig.ident = Ident::new(&format!("{}_async", item.sig.ident), Span::call_site());
     }
 
-    let tokens = quote!(#item);
+    if let Some(async_signature) = async_signature {
+        item.sig.inputs = async_signature.inputs;
 
-    let tokens = if let Some(alt_sig) = alt_sig {
-        let mut found_fn = false;
-        let mut found_args = false;
+        if let Some(generics) = async_signature.generics {
+            item.sig.generics = generics;
+        }
 
-        let old_tokens = tokens.into_iter().map(|token| match &token {
-            TokenTree2::Ident(i) => {
-                found_fn = found_fn || &i.to_string() == "fn";
-                token
-            }
-            TokenTree2::Group(g) => {
-                if found_fn && !found_args && g.delimiter() == proc_macro2::Delimiter::Parenthesis {
-                    found_args = true;
-                    return TokenTree2::Group(proc_macro2::Group::new(
-                        proc_macro2::Delimiter::Parenthesis,
-                        alt_sig.clone().into(),
-                    ));
-                }
-                token
-            }
-            _ => token,
-        });
-
-        TokenStream2::from_iter(old_tokens)
-    } else {
-        tokens
+        if let Some(output) = async_signature.output {
+            item.sig.output = output;
+        }
     };
+
+    let tokens = quote!(#item);
 
     DesugarIfAsync { is_async }.desugar_if_async(tokens)
 }
 
 #[proc_macro_attribute]
 pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
-    let mut async_signature: Option<TokenStream> = None;
-
-    if !args.to_string().is_empty() {
-        let mut atokens = args.into_iter();
-        loop {
-            if let Some(TokenTree::Ident(i)) = atokens.next() {
-                if i.to_string() != *"async_signature" {
-                    break;
-                }
-            } else {
-                break;
-            }
-
-            if let Some(TokenTree::Group(g)) = atokens.next() {
-                if atokens.next().is_none() && g.delimiter() == proc_macro::Delimiter::Parenthesis {
-                    async_signature = Some(g.stream());
-                }
-            }
-        }
-
-        if async_signature.is_none() {
-            return syn::Error::new(
-                Span::call_site(),
-                "async_generic can only take a async_signature argument",
-            )
-            .to_compile_error()
-            .into();
-        }
+    let async_signature = if args.is_empty() {
+        None
+    } else {
+        Some(parse_macro_input!(args as Args))
     };
 
     let input_clone = input.clone();
@@ -99,6 +61,57 @@ pub fn async_generic(args: TokenStream, input: TokenStream) -> TokenStream {
     let mut tokens = sync_tokens;
     tokens.extend(async_tokens);
     tokens.into()
+}
+
+struct Args {
+    generics: Option<syn::Generics>,
+    inputs: syn::punctuated::Punctuated<syn::FnArg, Token![,]>,
+    output: Option<syn::ReturnType>,
+}
+
+impl Parse for Args {
+    fn parse(input: ParseStream) -> Result<Self> {
+        let async_signature: Ident = input.parse()?;
+        if async_signature != "async_signature" {
+            return Err(Error::new(
+                Span::call_site(),
+                "async_generic can only take a async_signature argument",
+            ));
+        }
+
+        let mut generics: Option<syn::Generics> = if input.peek(Token![<]) {
+            Some(input.parse()?)
+        } else {
+            None
+        };
+
+        let args;
+        let _paren: syn::token::Paren = parenthesized!(args in input);
+        let inputs = args.parse_terminated(syn::FnArg::parse, Token![,])?;
+
+        let output = if input.peek(Token![->]) {
+            Some(input.parse()?)
+        } else {
+            None
+        };
+
+        if input.peek(Token![where]) {
+            if let Some(generics) = &mut generics {
+                generics.where_clause = Some(input.parse()?);
+            } else {
+                generics = Some(syn::Generics {
+                    where_clause: Some(input.parse()?),
+                    ..Default::default()
+                });
+            }
+        }
+
+        Ok(Self {
+            generics,
+            inputs,
+            output,
+        })
+    }
 }
 
 struct Item(ItemFn);
